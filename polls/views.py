@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, reverse, redirect
 from .models import *
+from django.http import HttpResponse
 
 
 # 首页，展示所有问题
@@ -17,12 +18,16 @@ def detail(req, question_id):
 # 查看投票结果
 def results(req, question_id):
     question = get_object_or_404(Question, pk=question_id)
-    return render(req, "polls/results.html", locals())
+    rep = render(req, "polls/results.html", locals())
+    rep.set_cookie("is_vote", True)
+    return rep
 
 
 # 选择投票
 def vote(req, question_id):
     p = get_object_or_404(Question, pk=question_id)
+    if req.COOKIES.get("is_vote", None):
+        return render(req, "polls/detail.html", {"question": p, "error_message": "你已经投过票了!"})
     try:
         selected_choice = p.choice_set.get(pk=req.POST['choice'])
     except (KeyError, Choice.DoesNotExist):
