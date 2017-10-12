@@ -18,9 +18,7 @@ def detail(req, question_id):
 # 查看投票结果
 def results(req, question_id):
     question = get_object_or_404(Question, pk=question_id)
-    rep = render(req, "polls/results.html", locals())
-    rep.set_cookie("is_vote", True)
-    return rep
+    return render(req, "polls/results.html", locals())
 
 
 # 选择投票
@@ -35,4 +33,6 @@ def vote(req, question_id):
     else:
         selected_choice.votes += 1
         selected_choice.save()
-        return redirect(reverse("polls:results", args=(p.id,)))
+        rep = redirect(reverse("polls:results", args=(p.id,)))
+        rep.set_cookie("is_vote", True)
+        return rep
